@@ -1,0 +1,160 @@
+---
+geometry: left=0.8in,right=0.8in,top=0.8in,bottom=0.8in
+fontsize: 11pt
+title: "STA 445 S26 Assignment 5"
+author: "Julia Ray"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(tidyverse)
+library(mosaicData)
+```
+
+## Problem 1
+Convert the following to date or date/time objects.
+
+a. September 13, 2010.
+```{r message=FALSE, warning=FALSE}
+mdy("September 13, 2010")
+```
+b. Sept 13, 2010.
+```{r message=FALSE, warning=FALSE}
+mdy("Sept 13, 2010")
+```
+Didn't work!
+
+c. Sep 13, 2010.
+```{r message=FALSE, warning=FALSE}
+mdy("Sep 13, 2010")
+```
+d. S 13, 2010. Comment on the month abbreviation needs.
+```{r message=FALSE, warning=FALSE}
+mdy("S 13, 2010")
+```
+Didn't work!
+
+The abbreviation of the month needs to be the first three letters of the name. This probably applies to day names as well. This is why the date with "Sept" did not work either.
+
+e. 07-Dec-1941.
+```{r message=FALSE, warning=FALSE}
+dmy("07-Dec-1941")
+```
+
+f. 1-5-1998. Comment on why you might be wrong.
+```{r message=FALSE, warning=FALSE}
+mdy("1-5-1998")
+```
+I could be wrong because I can't be sure if this date is in MDY or DYM format.
+
+g. 21-5-1998. Comment on why you know you are correct.
+```{r message=FALSE, warning=FALSE}
+dmy("21-5-1998")
+```
+I know I'm right when using DMY because there isn't a 21st month.
+
+h. 2020-May-5 10:30 am
+```{r message=FALSE, warning=FALSE}
+ymd_hm("2020-May-5 10:30 am")
+```
+
+i. 2020-May-5 10:30 am PDT (ex Seattle)
+```{r message=FALSE, warning=FALSE}
+ymd_hm("2020-May-5 10:30 am", tz="US/Pacific")
+```
+
+j. 2020-May-5 10:30 am AST (ex Puerto Rico)
+
+```{r message=FALSE, warning=FALSE}
+ymd_hm("2020-May-5 10:30 am", tz="America/Puerto_Rico")
+```
+
+
+## Problem 2
+
+Using just your date of birth (ex Sep 7, 1998) and today's date calculate the following:
+
+a. Calculate the date of your 64th birthday.
+```{r message=FALSE, warning=FALSE}
+mybirth<-mdy("July 21, 2005")
+mybirth+years(64)
+```
+
+b. Calculate your current age (in years). 
+```{r message=FALSE, warning=FALSE}
+today<-base::Sys.Date()
+myage<-today-mybirth
+im20<-as.duration(myage)
+im20
+```
+
+c. Using your result in part (b), calculate the date of your next birthday.
+```{r message=FALSE, warning=FALSE}
+nextbday<-today-myage+years(21)
+nextbday
+```
+d. The number of _days_ until your next birthday.
+```{r message=FALSE, warning=FALSE}
+daystonextbday<-as.period(nextbday-today)
+daystonextbday
+```
+
+e. The number of _months_ and _days_ until your next birthday.
+```{r message=FALSE, warning=FALSE}
+manddtonextbday<-as.period(today%--%nextbday,unit="months")
+manddtonextbday
+```
+
+
+## Problem 3
+
+Suppose you have arranged for a phone call to be at 3 pm on May 8, 2015 at Arizona time. However, the recipient will be in Auckland, NZ. What time will it be there? 
+```{r message=FALSE, warning=FALSE}
+aztime<-mdy_hm("May 8, 2015, 3:00 PM",tz="US/Arizona")
+aucklandtime<-with_tz(aztime,tz="Pacific/Auckland")
+aucklandtime
+```
+
+## Problem 4
+
+It turns out there is some interesting periodicity regarding the number of births on particular days of the year.
+
+a. Using the `mosaicData` package, load the data set `Births78` which records the number of children born on each day in the United States in 1978. Because this problem is intended to show how to calculate the information using the `date`, remove all the columns *except* `date` and `births`. 
+```{r message=FALSE, warning=FALSE}
+birthdatedata<-Births78 %>%
+  select(c("date","births"))
+```
+
+b. Graph the number of `births` vs the `date` with date on the x-axis. What stands out to you? Why do you think we have this trend?
+```{r message=FALSE, warning=FALSE}
+ggplot(data=birthdatedata,aes(x=date,y=births))+
+  geom_point()+
+  labs(title="Births per Date in 1978",
+       x="Date",
+       y="Births")
+```
+I'm not entirely sure why the graph looks like this, but one assumption I think I can make is that the dots that are on the lower part of the graph are probably weekends and holidays. Things like c-sections are probably scheduled during the doctor's work week.
+
+c. To test your assumption, we need to figure out the what day of the week each observation is. Use `dplyr::mutate` to add a new column named `dow` that is the day of the week (Monday, Tuesday, etc). This calculation will involve some function in the `lubridate` package and the `date` column.
+```{r message=FALSE, warning=FALSE}
+withdow<-birthdatedata %>%
+  mutate(dow=wday(date))
+```
+
+d. Plot the data with the point color being determined by the day of the week variable.
+```{r message=FALSE, warning=FALSE}
+ggplot(data=withdow,aes(x=date,y=births))+
+  geom_point(aes(color=dow))+
+  labs(title="Births per Date in 1978",
+       x="Date",
+       y="Births")
+```
+On the color key to the right, you can see that the lightest blue represents 7 (Saturday) and the darkest represents 1 (Sunday). The lower dots are these shades of blue, which proves my hypothesis correct.
+
+
+
+
+
+
+
+
