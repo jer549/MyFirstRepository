@@ -1,0 +1,24 @@
+---
+title: "Temperature Analysis"
+author: "Julia"
+date: "2026-04-08"
+output: html_document
+---
+
+---
+title: "My Awesome Analysis"
+author: "Your Name Here"
+date: "Today"
+output: html_document
+---
+
+This Rmarkdown file will make a graph of the MaxTemp data. The code below is 
+tabbed so that it properly knits to the webpage. Make sure you remove the eval=FALSE!!
+
+```{r}
+  library(MyFirstRPackage)   # load TestPackage, which includes MaxTemp data frame.
+  library(ggplot2)
+  
+  ggplot(MaxTemp, aes(x=Date, y=MaxTemp)) +
+    geom_line()
+```
